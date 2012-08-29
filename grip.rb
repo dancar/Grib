@@ -20,6 +20,9 @@
 #   target_groups: []
 #   misc: '--debug'
 
+# TODO:
+# fix description overriding in diff reviews
+# fix auto summary
 require "yaml"
 require 'logger'
 
@@ -54,10 +57,13 @@ logger.debug "target_groups: #{target_groups}"
 misc = (options["misc"] ||= "")
 logger.debug "misc: #{misc}"
 
+args = ARGV.join " "
+logger.debug "args: #{args}"
+
 revision_or_guess = r ? "--diff-only -r#{r}" : "--guess-summary"
 logger.debug
 
-cmd = %Q[post-review #{revision_or_guess} --guess-description --target-people="#{target_people}" --target-groups="#{target_groups}" --branch="#{branch}" #{open_browser ? "-o" : ""} #{misc}  ]
+cmd = %Q[post-review #{revision_or_guess} --guess-description --target-people="#{target_people}" --target-groups="#{target_groups}" --branch="#{branch}" #{open_browser ? "-o" : ""} #{misc} #{args} ]
 logger.debug "cmd: #{cmd}"
 
 response = %x[#{cmd}]
