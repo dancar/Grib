@@ -4,6 +4,7 @@
 # Usage: just run it.
 # If this is the first time a review is created for this branch, Grib will ask Reviewboard to create a new review, and will save this review's number
 # If the current branch has already been reviewed, Grib will ask Reviewboard to add a diff to the existing review.
+# You can run grib with the argument --new to force a new review to be created
 # Grib stores its data and configuration in a file named "gribdata.yml" under the .git directory.
 # In this file you may also define default Reviewboard's target people/groups, whether to automatically open the browser or not, and other Reviewboard command options.
 # Example gribdata.yml file:
@@ -29,23 +30,26 @@ require 'logger'
 logger = Logger.new(STDOUT)
 logger.formatter = proc do |severity, dt, progname, msg| "* #{severity == "ERROR" ? "ERROR - " : ""} #{msg}\n" end
 logger.level = Logger::INFO
+
+args = ARGV.join " "
+logger.debug "args: #{args}"
+
 branch = %x[git symbolic-ref -q HEAD].sub(/^refs\/heads\//,"").chomp
 logger.info "Branch: #{branch}"
 
 datafile_path = File.join(%x[git rev-parse --show-toplevel].chomp , ".git", "gribdata.yml")
 logger.debug "datafile_path: #{datafile_path}";
 
-
 data = File.exist?(datafile_path) ? YAML.load(File.new(datafile_path, "r")) : {}
 logger.debug "data: #{data}";
 
-r = (data["branches"] ||= {})[branch]
+r = !args.match(/--new/) && (data["branches"] ||= {})[branch]
 logger.info "review: #{r || "new review"}"
 
 options = (data["options"] ||= {})
 logger.debug "options: #{options}";
 
-open_browser = (options["open_browser"] ||= false)
+open_browser = (options["open_browser"] ||= true)
 logger.debug "open_browser: #{open_browser}"
 
 target_people = (options["target_people"]||=[]).join ","
@@ -57,14 +61,11 @@ logger.debug "target_groups: #{target_groups}"
 misc = (options["misc"] ||= "")
 logger.debug "misc: #{misc}"
 
-args = ARGV.join " "
-logger.debug "args: #{args}"
-
-revision_or_guess = r ? "--diff-only -r#{r}" : "--guess-summary"
+revision_or_guess = r ? "--diff-only -r#{r}" : "--guess-fields"
 logger.debug
 
-cmd = %Q[post-review #{revision_or_guess} --guess-description --target-people="#{target_people}" --target-groups="#{target_groups}" --branch="#{branch}" #{open_browser ? "-o" : ""} #{misc} #{args} ]
-logger.debug "cmd: #{cmd}"
+cmd = %Q[post-review #{revision_or_guess} --target-people="#{target_people}" --target-groups="#{target_groups}" --branch="#{branch}" #{open_browser ? "-o" : ""} #{misc} #{args} ]
+logger.info "running: #{cmd}"
 
 response = %x[#{cmd}]
 logger.info "Post-review response:\n #{response}"
