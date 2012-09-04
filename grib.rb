@@ -31,9 +31,11 @@ logger = Logger.new(STDOUT)
 logger.formatter = proc do |severity, dt, progname, msg| "* #{severity == "ERROR" ? "ERROR - " : ""} #{msg}\n" end
 logger.level = Logger::INFO
 
+force_new = ARGV.delete("--new")
+logger.debug "force_new: #{force_new}"
+
 args = ARGV.join " "
 logger.debug "args: #{args}"
-
 branch = %x[git symbolic-ref -q HEAD].sub(/^refs\/heads\//,"").chomp
 logger.info "Branch: #{branch}"
 
@@ -43,7 +45,7 @@ logger.debug "datafile_path: #{datafile_path}";
 data = File.exist?(datafile_path) ? YAML.load(File.new(datafile_path, "r")) : {}
 logger.debug "data: #{data}";
 
-r = !args.match(/--new/) && (data["branches"] ||= {})[branch]
+r = !force_new && (data["branches"] ||= {})[branch]
 logger.info "review: #{r || "new review"}"
 
 options = (data["options"] ||= {})
