@@ -65,7 +65,7 @@ revision_or_guess = r ? "--diff-only -r#{r}" : "--guess-fields"
 logger.debug
 
 cmd = %Q[post-review #{revision_or_guess} --target-people="#{target_people}" --target-groups="#{target_groups}" --branch="#{branch}" #{open_browser ? "-o" : ""} #{misc} #{args} ]
-logger.info "running: #{cmd}"
+logger.info "running command:\n\t\"#{cmd}\""
 
 response = %x[#{cmd}]
 logger.info "Post-review response:\n #{response}"
