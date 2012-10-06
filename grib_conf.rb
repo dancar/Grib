@@ -1,5 +1,6 @@
 # GribConf is simply a hash which doesn't allow invalid post-review/grib options to be stored.
 # It can also have a name and can be initialized directly from a file
+require 'pp'
 class GribConf < Hash
   attr_accessor :conf_name
   ValidParams = [
@@ -34,6 +35,7 @@ class GribConf < Hash
   AllOptions = ValidParams + ValidFlags
 
   def [](k)
+    $LOG.warn("Invalid option: #{k}") unless AllOptions.include?(k)
     self.has_key?(k) ? super(k) : @parent[k]
   end
 
@@ -43,7 +45,7 @@ class GribConf < Hash
       return
     end
     if ValidFlags.include?(k) && !v.class.name.match(/(True|False)Class/)
-      $LOG.warn("Invalud boolean value: #{v} for flag: #{k} in configuration: #{@conf_name}. using #{!!v} instead")
+      $LOG.warn("Invalid boolean value: #{v} for flag: #{k} in configuration: #{@conf_name}. using #{!!v} instead")
       v = !!v
     end
     super(k,v)
@@ -67,5 +69,9 @@ class GribConf < Hash
     end
 
     @parent = parent
+  end
+
+  def to_s()
+    "{-GribConf: #{super()} [parent conf: #{@parent}]-}"
   end
 end

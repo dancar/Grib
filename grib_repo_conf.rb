@@ -18,14 +18,14 @@ class GribRepoConf < GribConf
     data = YAML.load(file)
     @branches = {}
     (data["branches"] || {}).each do |branch_name, branch_data|
-      @branches[branch_name] = GribConf.new(branch_data, branch_name)
+      @branches[branch_name] = GribConf.new(branch_data, branch_name, self)
     end
     # Init the general GribConf object according to the "general" key in the data
     super(data["general"], "General")
   end
 
   def for_branch(branch)
-    (@branches[branch] ||= GribConf.new({}, branch))
+    (@branches[branch] ||= GribConf.new({}, branch, self))
   end
 
   def get_conf(branch)
