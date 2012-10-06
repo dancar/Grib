@@ -1,18 +1,22 @@
 class TestLogger
   attr_accessor :last_log
   @@last_log = nil
-  def warn(*args)
-    @@last_log = :warn
+
+  [:debug, :info, :warn, :error].each do |sevirity|
+    define_method sevirity do |*args|
+      @@last_log = sevirity
+      super.send sevirity, *args if ENV["BUBBLE_LOGS"]
+    end
   end
-  def error(*args)
-    @@last_log = :error
-  end
+
   def clear()
     @@last_log = nil
   end
+
   def initialize()
     self.clear()
   end
+
   def self.last_log
     @@last_log
   end

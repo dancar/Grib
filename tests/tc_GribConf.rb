@@ -1,7 +1,7 @@
 require "../grib_conf"
 require "test/unit"
 require 'test_logger'
-class TestGrib < Test::Unit::TestCase
+class TestGribConf < Test::Unit::TestCase
 
 
   def setup
@@ -12,29 +12,23 @@ class TestGrib < Test::Unit::TestCase
     opts = {
       "target-people" => "hello,world"
     }
-    conf = GribConf.new(opts, :name => "test")
+    conf = GribConf.new(opts, "test")
     assert_equal("test", conf.conf_name)
     assert_equal("hello,world", conf["target-people"])
   end
+
   def test_conf_simples
     opts = {
       "target-people" => "hello,world",
       "parent" => "my great parent"
     }
-    conf = GribConf.new(opts, :name => "test")
+    conf = GribConf.new(opts, "test")
     assert_equal("hello,world", conf["target-people"])
     assert_equal("my great parent", conf["parent"])
   end
 
-  def test_conf_invalid_opt
-    conf = GribConf.new({
-      "invalid-op" => :bla
-    }, :name => "test")
-    assert_nil(conf["invalid-op"])
-    assert_last_log(:warn)
-  end
 
-  def test_conf_bad_boolean
+  def test_conf_bad_boolean()
     conf = GribConf.new({
       "guess-description" => "yes please"
     })
@@ -49,6 +43,18 @@ class TestGrib < Test::Unit::TestCase
     assert_last_log(:warn)
   end
 
-  def test_simple_from_file end
+  def test_parent()
+    conf = GribConf.new({
+        "guess-description" => "yes please",
+        "parent" => "myfirstparent"
+      }, "test", {
+        "parent" => "grandparent",
+        "target-people" => "mybla"
+      })
+    assert_equal("myfirstparent", conf["parent"])
+    assert_equal("mybla", conf["target-people"])
+    assert_equal(true, conf["guess-description"])
+    assert_equal(nil, conf["target-groups"])
+  end
 
 end

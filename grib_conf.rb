@@ -1,3 +1,5 @@
+# GribConf is simply a hash which doesn't allow invalid post-review/grib options to be stored.
+# It can also have a name and can be initialized directly from a file
 class GribConf < Hash
   attr_accessor :conf_name
   ValidParams = [
@@ -31,6 +33,10 @@ class GribConf < Hash
   ]
   AllOptions = ValidParams + ValidFlags
 
+  def [](k)
+    self.has_key?(k) ? super(k) : @parent[k]
+  end
+
   def []=(k,v)
     unless AllOptions.include?(k)
       $LOG.warn("Invalid option: #{k} with value #{v} in grib conf: #{@conf_name}")
@@ -43,13 +49,13 @@ class GribConf < Hash
     super(k,v)
   end
 
-  def initialize(file_path_or_hash ,options = {:name => "Unnamed Gribdata"})
+  def initialize(file_path_or_hash, name = "Unnamed Gribdata", parent = {})
     if file_path_or_hash.is_a?(String)
       file = File.new(file_path_or_hash, "rw")
       @conf_name = file.basename
       gribdata = yaml_path,YAML.load(file)
     elsif file_path_or_hash.is_a?(Hash)
-      @conf_name = options[:name]
+      @conf_name = name
       gribdata = file_path_or_hash
     else
       $LOG.error("invalid argument type: #{file_path_or_hash.class.name}")
@@ -59,5 +65,7 @@ class GribConf < Hash
     gribdata.each do |key,value|
       self[key] = value
     end
+
+    @parent = parent
   end
 end
