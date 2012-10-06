@@ -1,6 +1,6 @@
-require '../grib_repo_conf'
+require 'lib/grib_repo_conf'
 require "test/unit"
-require 'test_logger'
+require 'tests/test_logger'
 require 'yaml'
 class TestGribRepoConf < Test::Unit::TestCase
   @@FILE1 = "file1.yml"

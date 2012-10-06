@@ -1,18 +1,11 @@
 #!/usr/bin/env ruby
 # Grib - Git Reviewboard script
-require 'logger'
-require 'gribconf'
-def make_logger()
-  logger = Logger.new(STDOUT)
-  logger.formatter = proc do |severity, dt, progname, msg| "* #{severity == "ERROR" ? "ERROR - " : ""} #{msg}\n" end
-  env_level = (ENV["LOGGING"] || "").to_sym
-  logger.level = Logger.constants.include?(env_level) ? Logger.const_get(env_level) : Logger::INFO
-  logger
-end
-
-$LOG = make_logger()
-
+require 'lib/grib_conf'
+require 'lib/grib_repo_conf'
+require 'lib/trollop'
+require 'lib/logger'
 class Grib
+
 #   def initialize(args)
 #     @cmds = ["post-review"]
 #     @logger = make_logger()

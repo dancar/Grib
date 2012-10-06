@@ -1,6 +1,6 @@
-require "../grib_conf"
+require "lib/grib_conf"
 require "test/unit"
-require 'test_logger'
+require 'tests/test_logger'
 class TestGribConf < Test::Unit::TestCase
 
 

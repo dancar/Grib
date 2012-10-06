@@ -1,3 +1,3 @@
 # Grib tests
-require "tc_GribConf"
-require "tc_GribRepoConf"
+require "tests/tc_GribConf"
+require "tests/tc_GribRepoConf"
