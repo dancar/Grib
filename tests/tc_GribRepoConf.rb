@@ -26,6 +26,10 @@ class TestGribRepoConf < Test::Unit::TestCase
     @file1 = File.new(@file1_path, "r")
   end
 
+  def teardown()
+    %x[rm #{@file1_path}]
+  end
+
   def test_inexistent_branch()
     g = GribRepoConf.new(@file1).get_conf(17)
     assert_equal("me", g["target-people"])
