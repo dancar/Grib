@@ -3,6 +3,7 @@
 require 'pp'
 class GribConf < Hash
   attr_accessor :conf_name
+  attr_accessor :parent
   VALID_OPTIONS = [
     "server",
     "target-groups",
@@ -30,6 +31,8 @@ class GribConf < Hash
     "reopen",
     "guess-summary",
     "guess-description",
+    "open",
+    "publish",
     # "diff-only",
     "disable-proxy"
   ].freeze
