@@ -1,3 +1,5 @@
+require 'optparse'
+require 'lib/grib_conf'
 class GribCommandConf < GribConf
   UNFLAG_PREFIX = "dont".freeze
   SHORT_PARAM_MAPPING = {
@@ -6,16 +8,13 @@ class GribCommandConf < GribConf
     "guess-fields" => "g",
     }.freeze
 
-  def initialize(argv = "", name = "grib_command_conf", parent = {})
+  def initialize(argv = "", name = "grib_command_conf", parent = {}, &option_handler)
     super({}, name, parent)
-    parse(argv)
-  end
-
-  def parse(argv, &option_handler)
-    opts = OptionParser.new do |opts|
+    @option_handler = option_handler
+    @opts = OptionParser.new do |opts|
       GribConf::VALID_OPTIONS.each do |pr_option|
         opts.on("--#{pr_option}=#{pr_option.upcase}", String) do |str|
-          save_option pr_option, str, &option_handler
+          save_option pr_option, str
         end
       end
 
@@ -25,20 +24,25 @@ class GribCommandConf < GribConf
           args << "-#{short}"
         end
         opts.on(*args) do
-          save_option pr_flag, true, &option_handler
+          save_option pr_flag, true
         end
 
         opts.on("--#{UNFLAG_PREFIX}-#{pr_flag}") do
-          save_option pr_flag, false, &option_handler
+          save_option pr_flag, false
         end
       end
     end
-    opts.parse(argv)
+    parse(argv, &option_handler)
+  end
+
+  def parse(argv, &option_handler)
+    @option_handler = option_handler if option_handler
+    @opts.parse(argv)
   end
 
   private
-  def save_option(opt, value, &option_handler)
+  def save_option(opt, value)
     self[opt] = value
-    option_handler.call(opt, value) if option_handler
+    @option_handler.call(opt, value) if @option_handler
   end
 end

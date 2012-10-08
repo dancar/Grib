@@ -2,7 +2,6 @@
 # Grib - Git Reviewboard script
 require 'lib/grib_conf'
 require 'lib/grib_repo_conf'
-require 'optparse'
 require 'lib/logger'
 class Grib
   opts.parse!(ARGV)
