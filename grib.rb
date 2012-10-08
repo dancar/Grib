@@ -6,37 +6,7 @@ require 'lib/grib_repo_conf'
 require 'optparse'
 require 'lib/logger'
 class Grib
-  UNFLAG_PREFIX = "dont".freeze
-  SHORT_PARAM_MAPPING = {
-    "publish" => "p",
-    "open" => "o",
-    "guess-fields" => "g",
-    }.freeze
-
-  commands = {}
-  OptionParser.new do |opts|
-    GribConf::VALID_OPTIONS.each do |pr_option|
-      opts.on("--#{pr_option}=#{pr_option.upcase}", String) do |str|
-        commands[pr_option] = str
-      end
-    end
-
-    GribConf::VALID_FLAGS.each do |pr_flag|
-      args = ["--#{pr_flag}"]
-      if (short = SHORT_PARAM_MAPPING[pr_flag])
-        args << "-#{short}"
-      end
-      opts.on(*args) do
-        commands[pr_flag] = true
-      end
-
-      opts.on("--#{UNFLAG_PREFIX}-#{pr_flag}") do
-        commands[pr_flag] = false
-      end
-    end
-
-    opts.parse!(ARGV)
-  end
+  opts.parse!(ARGV)
   print("[grib.rb:31] commands:_\n\t"); pp(commands) # commands output
 
 #   def initialize(args)
