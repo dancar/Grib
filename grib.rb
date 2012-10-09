@@ -63,6 +63,17 @@ Your choice: ]
     $LOG.debug conf
     # Generate and run command:
     cmd = generate_pr_command(conf)
+    if conf["dry"]
+      puts cmd
+      exit 0
+    elsif conf["info"]
+      print_info(conf)
+      exit 0
+    elsif conf["full-info"]
+      print_info(conf, true)
+      exit 0
+    end
+
     $LOG.debug "command: \n\t'#{cmd}'"
     pr_output = %x[#{cmd}]
 
@@ -126,6 +137,15 @@ Your choice: ]
     ans = GribRepoConf.new(filename, "Repo", parent)
     $LOG.debug ans
     ans
+  end
+
+  def print_info(conf, show_nils = false)
+    $LOG.info "#{show_nils ? "Full " : ""}Configuration dump:"
+    GribConf::ALL_OPTIONS.each do |o|
+      v = conf[o]
+      puts "#{o} = #{v}" if !v.nil? or show_nils
+    end
+
   end
 
   def read_char()

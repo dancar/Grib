@@ -51,4 +51,9 @@ class TestGribConf < Test::Unit::TestCase
       assert_equal true, hash["guess-description"]
     end
   end
+
+  def test_uniques()
+    g = for_command "--parent=bla --new"
+    assert_equal true, g["new"]
+  end
 end

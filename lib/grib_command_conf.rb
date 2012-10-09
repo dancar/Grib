@@ -9,6 +9,12 @@ class GribCommandConf < GribConf
     "guess-fields" => "g",
     "review-request-id" => "r"
     }.freeze
+  COMMAND_LINE_UNIQUE_OPTIONS = {
+    "new" => "Ignore existing review-request-id and ask to create a new one",
+    "info" => "Do not execute post-review, only show branch info",
+    "dry" => "Dry-run - do not execute post-review, only read configurations and show the command",
+    "full-info" => "Same as --info, but shows unspecified configurations as well"
+    }.freeze
 
   def initialize(argv = "", name = "grib_command_conf", parent = {}, &option_handler)
     super({}, name, parent)
@@ -41,6 +47,12 @@ class GribCommandConf < GribConf
           save_option pr_flag, false
         end
       end
+
+      COMMAND_LINE_UNIQUE_OPTIONS.each do |cmd_flag, desc|
+        opts.on("--#{cmd_flag}", desc) do
+          self[cmd_flag] = true
+        end
+      end
     end
     parse(argv, &option_handler)
   end
@@ -48,6 +60,15 @@ class GribCommandConf < GribConf
   def parse(argv, &option_handler)
     @option_handler = option_handler if option_handler
     @opts.parse(argv)
+  end
+
+  def []=(k,v)
+    super(k,v, COMMAND_LINE_UNIQUE_OPTIONS.include?(k))
+  end
+
+  def [](k)
+    return nil if k == "review-request-id" and self["new"]
+    return super(k)
   end
 
   private

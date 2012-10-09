@@ -41,13 +41,12 @@ class GribConf < Hash
   ALL_OPTIONS = (VALID_OPTIONS + VALID_FLAGS).freeze
 
   def [](k)
-    $LOG.warn("Invalid option: #{k}") unless ALL_OPTIONS.include?(k)
     value = super(k)
     value.nil? ? (@parent  && @parent[k]) : value
   end
 
-  def []=(k,v)
-    unless ALL_OPTIONS.include?(k)
+  def []=(k,v, skip_check = false)
+    unless skip_check or ALL_OPTIONS.include?(k)
       $LOG.warn("Invalid option: #{k} with value #{v} in grib conf: #{@conf_name}")
       return
     end
