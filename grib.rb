@@ -5,6 +5,7 @@ require 'lib/grib_repo_conf'
 require 'lib/grib_command_conf'
 require 'lib/logger'
 require 'lib/repo_interfaces/git'
+require 'shellwords'
 
 class Grib
   # Constants:
@@ -84,7 +85,7 @@ class Grib
     args = []
     args << PR_COMMAND
     GribConf::VALID_OPTIONS.each do |option|
-      args << "--#{option}=#{conf[option]}" unless conf[option].nil?
+      args << "--#{option}=#{Shellwords.escape(conf[option])}" unless conf[option].nil?
     end
     GribConf::VALID_FLAGS.each do |option|
       args << "--#{option}" if conf[option]
