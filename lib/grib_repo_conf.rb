@@ -5,6 +5,7 @@ require 'yaml'
 # GribRepoConf#get_conf returns the merged settings of a branch and its repo.
 # GribRepoConf acts as a regular GribConf for the general repo settings.
 class GribRepoConf < GribConf
+  attr_accessor :filename
   def initialize(filename, name = "Repo", parent = {})
     @filename = filename
     data = {}
