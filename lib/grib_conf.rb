@@ -42,7 +42,8 @@ class GribConf < Hash
 
   def [](k)
     $LOG.warn("Invalid option: #{k}") unless ALL_OPTIONS.include?(k)
-    self.has_key?(k) ? super(k) : (@parent && @parent[k])
+    value = super(k)
+    value.nil? ? (@parent  && @parent[k]) : value
   end
 
   def []=(k,v)
@@ -54,7 +55,7 @@ class GribConf < Hash
       $LOG.warn("Invalid boolean value: #{v} for flag: #{k} in configuration: #{@conf_name}. using #{!!v} instead")
       v = !!v
     end
-    super(k,v)
+    super(k,v) unless v.nil?
   end
 
   def initialize(file_path_or_hash = {}, name = "Unnamed Gribdata", parent = {})

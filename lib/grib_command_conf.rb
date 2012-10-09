@@ -2,6 +2,7 @@ require 'optparse'
 require 'lib/grib_conf'
 class GribCommandConf < GribConf
   UNFLAG_PREFIX = "dont".freeze
+  UNOPTION_PREFIX = "no".freeze
   SHORT_PARAM_MAPPING = {
     "publish" => "p",
     "open" => "o",
@@ -20,6 +21,10 @@ class GribCommandConf < GribConf
         str << "--#{pr_option}=#{pr_option.upcase}"
         opts.on(str, String) do |str|
           save_option pr_option, str
+        end
+
+        opts.on("--no-#{pr_option}") do
+          save_option pr_option, nil
         end
       end
 

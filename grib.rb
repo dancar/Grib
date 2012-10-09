@@ -22,6 +22,7 @@ class Grib
     $LOG = make_logger()
     $LOG.info "Welcome to Grib #{VERSION}"
     @repo_interface = REPO_INTERFACES[ENV["REPO"] || "git"].new
+    Signal.trap("INT") {exit} # for reading a single character
   end
 
   def run()
@@ -34,7 +35,19 @@ class Grib
     branch_conf = repo_conf.for_branch(branch)
     $LOG.debug branch_conf
     command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", branch_conf) do |new_option, value|
-      $LOG.info "New option: #{new_option} = #{value}"
+      next if branch_conf[new_option] == value # No need to save command-line argument if already saved
+      puts "\nNew option:\n\t#{new_option} = #{value}"
+      puts "Save new option?\n\t(b) for branch '#{branch}'\n\t(r) for current repository\n\t(n) Do not save"
+      user_ans = read_char()
+      while not user_ans.match(/[brn]/)
+        puts "Please type either 'b', 'r' or 'n'"
+        user_ans = read_char()
+      end
+
+      case user_ans
+        when "b" then branch_conf[new_option] = value
+        when "r" then repo_conf[new_option] = value
+      end
     end
     conf = command_line_conf
     $LOG.debug conf
@@ -102,6 +115,18 @@ class Grib
     ans = GribRepoConf.new(filename, "Repo", parent)
     $LOG.debug ans
     ans
+  end
+
+  def read_char()
+    # magic from http://stackoverflow.com/questions/174933/how-to-get-a-single-character-without-pressing-enter
+    begin
+      system("stty raw -echo")
+      str = STDIN.getc
+    ensure
+      system("stty -raw echo")
+    end
+    exit(-1) if str == 3 or str == 26
+    return str.chr
   end
 
 #     @cmds = ["post-review"]
