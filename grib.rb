@@ -38,8 +38,14 @@ class Grib
     conf_changed = false
     command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", branch_conf) do |new_option, value|
       next if branch_conf[new_option] == value # No need to save command-line argument if already saved
-      puts "\nNew option:\n\t#{new_option} = #{value}"
-      puts "Save new option?\n\t(b) for branch '#{branch}'\n\t(r) for current repository\n\t(n) Do not save"
+      print %Q[
+A new option have been specified:
+\t#{new_option} = "#{value}"
+Would you like to save this option as default for future invocations?
+\t(b) Yes, save as default for branch '#{branch}'
+\t(r) Yes, save as default for all branches under the current repository
+\t(n) No, do not save this option
+Your choice: ]
       user_ans = read_char()
       while not user_ans.match(/[brn]/)
         puts "Please type either 'b', 'r' or 'n'"
@@ -50,6 +56,7 @@ class Grib
         when "b" then branch_conf[new_option] = value
         when "r" then repo_conf[new_option] = value
       end
+      puts user_ans
       conf_changed = true if user_ans.match(/[br]/)
     end
     conf = command_line_conf
