@@ -30,8 +30,10 @@ class Grib
   def run()
 
     conf = obtain_configurations()
+    conf["branch"] = @branch
     # Generate and run command:
     cmd = generate_pr_command(conf)
+    @repo_conf.save_file
     if conf["dry"]
       $LOG.info cmd
       exit 0

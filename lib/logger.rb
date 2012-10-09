@@ -2,7 +2,7 @@ require 'logger'
 class GribLogger < Logger
   def error(*args)
     super(*args)
-    throw *args
+    throw "Error logged"
   end
 end
 def make_logger()
