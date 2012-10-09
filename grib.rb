@@ -27,44 +27,12 @@ class Grib
   end
 
   def run()
-    # TODO: add support for --new, --info
 
-    # Obtain configurations:
-    user_conf = get_user_conf()
-    branch = get_current_branch()
-    repo_conf = get_repo_conf(user_conf)
-    branch_conf = repo_conf.for_branch(branch)
-    $LOG.debug branch_conf
-    conf_changed = false
-    command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", branch_conf) do |new_option, value|
-      next if branch_conf[new_option] == value # No need to save command-line argument if already saved
-      print %Q[
-A new option have been specified:
-\t#{new_option} = "#{value}"
-Would you like to save this option as default for future invocations?
-\t(b) Yes, save as default for branch '#{branch}'
-\t(r) Yes, save as default for all branches under the current repository
-\t(n) No, do not save this option
-Your choice: ]
-      user_ans = read_char()
-      while not user_ans.match(/[brn]/)
-        puts "Please type either 'b', 'r' or 'n'"
-        user_ans = read_char()
-      end
-
-      case user_ans
-        when "b" then branch_conf[new_option] = value
-        when "r" then repo_conf[new_option] = value
-      end
-      puts user_ans
-      conf_changed = true if user_ans.match(/[br]/)
-    end
-    conf = command_line_conf
-    $LOG.debug conf
+    conf = obtain_configurations()
     # Generate and run command:
     cmd = generate_pr_command(conf)
     if conf["dry"]
-      puts cmd
+      $LOG.info cmd
       exit 0
     elsif conf["info"]
       print_info(conf)
@@ -93,10 +61,48 @@ Your choice: ]
     $LOG.debug "post-review output: \n#{"-"*64}\n#{pr_output}#{"-"*64}"
     $LOG.info "Review number : ##{review_number}"
     $LOG.info "Browser should now be opened." if conf["open"]
-    branch_conf["review-request-id"] = review_number
-    repo_conf.save_file
-    $LOG.info("Changes saved to #{repo_conf.filename}.") if conf_changed
+    @branch_conf["review-request-id"] = review_number
+    @repo_conf.save_file
+    $LOG.info("Changes saved to #{@repo_conf.filename}.") if @conf_changed
 
+  end
+
+  def obtain_configurations()
+    @user_conf = get_user_conf()
+    @branch = get_current_branch()
+    @repo_conf = get_repo_conf(@user_conf)
+    @branch_conf = @repo_conf.for_branch(@branch)
+    $LOG.debug @branch_conf
+    @conf_changed = false
+    @command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", @branch_conf) do |new_option, value|
+      save_new_option(new_option,value)
+    end
+    $LOG.debug @commannd_line_conf
+    @command_line_conf
+  end
+
+  def save_new_option(new_option, value)
+    return if @branch_conf[new_option] == value # No need to save command-line argument if already saved
+    print %Q[
+    A new option have been specified:
+      \t#{new_option} = "#{value}"
+      Would you like to save this option as default for future invocations?
+      \t(b) Yes, save as default for branch '#{@branch}'
+      \t(r) Yes, save as default for all branches under the current repository
+      \t(n) No, do not save this option
+      Your choice: ].gsub(/^ */,"")
+    user_ans = read_char()
+    while not user_ans.match(/[brn]/)
+      puts "Please type either 'b', 'r' or 'n'"
+      user_ans = read_char()
+    end
+
+    case user_ans
+      when "b" then @branch_conf[new_option] = value
+      when "r" then @repo_conf[new_option] = value
+    end
+    puts user_ans
+    @conf_changed = true if user_ans.match(/[br]/)
   end
 
   def generate_pr_command(conf)
@@ -143,7 +149,7 @@ Your choice: ]
     $LOG.info "#{show_nils ? "Full " : ""}Configuration dump:"
     GribConf::ALL_OPTIONS.each do |o|
       v = conf[o]
-      puts "#{o} = #{v}" if !v.nil? or show_nils
+      $LOG.info "\t#{o} = #{v}" if !v.nil? or show_nils
     end
 
   end
@@ -160,4 +166,5 @@ Your choice: ]
     return str.chr
   end
 end
+
 Grib.new().run()
