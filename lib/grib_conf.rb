@@ -23,7 +23,8 @@ class GribConf < Hash
     "repository-url",
     "diff-filename",
     "http-username",
-    "http-password"
+    "http-password",
+    "r"
   ].freeze
 
   VALID_FLAGS = [
@@ -41,7 +42,7 @@ class GribConf < Hash
 
   def [](k)
     $LOG.warn("Invalid option: #{k}") unless ALL_OPTIONS.include?(k)
-    self.has_key?(k) ? super(k) : @parent[k]
+    self.has_key?(k) ? super(k) : (@parent && @parent[k])
   end
 
   def []=(k,v)
@@ -58,7 +59,7 @@ class GribConf < Hash
 
   def initialize(file_path_or_hash = {}, name = "Unnamed Gribdata", parent = {})
     if file_path_or_hash.is_a?(String)
-      file = File.new(file_path_or_hash, "rw")
+      file = File.new(file_path_or_hash, "r")
       @conf_name = file.basename
       gribdata = yaml_path,YAML.load(file)
     elsif file_path_or_hash.is_a?(Hash)

@@ -1,9 +1,14 @@
 require 'logger'
+class GribLogger < Logger
+  def error(*args)
+    super(*args)
+    throw *args
+  end
+end
 def make_logger()
-  logger = Logger.new(STDOUT)
+  logger = GribLogger.new(STDOUT)
   logger.formatter = proc do |severity, dt, progname, msg| "* #{severity == "ERROR" ? "ERROR - " : ""} #{msg}\n" end
-  env_level = (ENV["LOGGING"] || "INFO").to_sym
-  logger.level = Logger.constants.include?(env_level) ? Logger.const_get(env_level) : Logger::INFO
+  logger.level = Logger.const_get Logger.constants[Logger.constants.map{|c| c.to_s}.find_index((ENV["LOGGING"] || "INFO"))]
   logger
 end
 $LOG = make_logger()

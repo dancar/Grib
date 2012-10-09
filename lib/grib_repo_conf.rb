@@ -1,26 +1,26 @@
 require 'lib/grib_conf'
+require 'yaml'
 # GribRepoConf contains a GribData per each branch and a general GribData for all branches
 # It is used to store both repository-based settings and branch-based settings
 # GribRepoConf#get_conf returns the merged settings of a branch and its repo.
 # GribRepoConf acts as a regular GribConf for the general repo settings.
 class GribRepoConf < GribConf
-  def initialize(file_or_filename)
-    if file_or_filename.is_a?(String)
-      @filename = file_or_filename
-      file = File.open(@filename)
-    elsif file_or_filename.is_a?(File)
-      @filename = file_or_filename.path
-      file = file_or_filename
+  def initialize(filename, name = "Repo", parent = {})
+    @filename = filename
+    data = {}
+    if File.exists?(filename)
+      File.open(filename) do |file|
+        data = YAML.load(file) || {}
+      end
     else
-      throw InvalidArgument
+      File.new(filename, "w").close # touch
     end
-    data = YAML.load(file)
     @branches = {}
     (data["branches"] || {}).each do |branch_name, branch_data|
       @branches[branch_name] = GribConf.new(branch_data, branch_name, self)
     end
     # Init the general GribConf object according to the "general" key in the data
-    super(data["general"], "General")
+    super(data["general"], name, parent)
   end
 
   def for_branch(branch)

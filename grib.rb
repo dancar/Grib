@@ -2,12 +2,98 @@
 # Grib - Git Reviewboard script
 require 'lib/grib_conf'
 require 'lib/grib_repo_conf'
+require 'lib/grib_command_conf'
 require 'lib/logger'
-class Grib
-  opts.parse!(ARGV)
-  print("[grib.rb:31] commands:_\n\t"); pp(commands) # commands output
+require 'lib/repo_interfaces/git'
 
-#   def initialize(args)
+class Grib
+  # Constants:
+  VERSION = "2.0"
+  USER_CONF_FILE = ".grib" # Will be concatenated to the HOME environment variable
+  REPO_CONF_FILE = "gribdata.yml" # Will reside in the repository folder
+  REPO_INTERFACES = {
+    "git" => GribRepoInterfaces::Git,
+    # "tests" = GribRepoInterface::TestsRepoInterface
+    # TODO: add Mercurial
+  }
+  PR_COMMAND = "post-review"
+
+  def initialize()
+    $LOG = make_logger()
+    $LOG.info "Welcome to Grib #{VERSION}"
+    @repo_interface = REPO_INTERFACES[ENV["REPO"] || "git"].new
+  end
+
+  def run()
+    # TODO: add support for --new, --info
+
+    # Obtain configurations:
+    user_conf = get_user_conf()
+    branch = get_current_branch()
+    repo_conf = get_repo_conf(user_conf)
+    branch_conf = repo_conf.for_branch(branch)
+    command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", branch_conf) do |new_option, value|
+      $LOG.info "New option: #{new_option} = #{value}"
+    end
+    conf = command_line_conf
+
+    # Generate and run command:
+    cmd = generate_pr_command(conf)
+    $LOG.debug "command: \n\t'#{cmd}'"
+    pr_output = %x[#{cmd}]
+    # $LOG.debug "post-review output: \n#{pr_output}"
+
+    # Process output:
+    review_number = pr_output.match(/ #([0-9]+) /).tap{|r|
+      unless r
+        $LOG.error <<-END
+  Could not capture review number, something must have gone wrong.
+  ---post-review output:-----------------------------------------
+  #{pr_output}
+  ---------------------------------------------------------------
+  Changes will not be saved.
+  END
+        exit -1
+      end
+    }[1]
+    $LOG.info "Review number : ##{review_number}"
+    $LOG.info "Browser should now be opened." if conf["open"]
+    branch_conf["r"] = review_number
+    repo_conf.save_file
+
+  end
+
+  def generate_pr_command(conf)
+    args = []
+    args << PR_COMMAND
+
+    return args.join(" ")
+  end
+
+  def get_current_branch()
+    branch = @repo_interface.get_current_branch
+    $LOG.info "Current branch: #{branch}"
+    return branch
+  end
+
+  def get_user_conf()
+    filename = File.join(ENV["HOME"], USER_CONF_FILE)
+    if File.exists?(filename)
+      $LOG.debug "Using user configuration file: #{filename}"
+      return GribConf.new(filename, "User")
+    else
+      $LOG.debug "No user configuration file found in #{filename}"
+      return GribConf.new({}, "Empty User")
+    end
+  end
+
+  def get_repo_conf(parent)
+    repo_data_folder = @repo_interface.get_data_folder()
+    filename = File.join repo_data_folder, REPO_CONF_FILE
+    $LOG.debug "Repository configuration file: #{filename}"
+    GribRepoConf.new(filename, "Repo", parent)
+  end
+
 #     @cmds = ["post-review"]
 #     @logger = make_logger()
 #     @args = args.dup()
@@ -112,9 +198,6 @@ class Grib
 #     File.new(@datafile_path, "w").write(YAML.dump(@gribdata))
 #     @logger.deug "File saved successfully."
 #   end
-
 end
 
-
-
-# Grib.new(ARGV).run()
+Grib.new().run()
