@@ -5,16 +5,18 @@ require 'yaml'
 # GribRepoConf#get_conf returns the merged settings of a branch and its repo.
 # GribRepoConf acts as a regular GribConf for the general repo settings.
 class GribRepoConf < GribConf
+
   attr_accessor :filename
-  def initialize(filename, name = "Repo", parent = {})
-    @filename = filename
+
+  def initialize(filename = nil, name = "Repo", parent = nil)
+    @filename = filename || "/dev/null"
     data = {}
-    if File.exists?(filename)
-      File.open(filename) do |file|
+    if File.exists?(@filename)
+      File.open(@filename) do |file|
         data = YAML.load(file) || {}
       end
     else
-      File.new(filename, "w").close # touch
+      File.new(@filename, "w").close # touch
     end
     @branches = {}
     (data["branches"] || {}).each do |branch_name, branch_data|

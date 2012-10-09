@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 # Grib - Git Reviewboard script
+$:.unshift File.dirname(__FILE__)
 require 'lib/grib_conf'
 require 'lib/grib_repo_conf'
 require 'lib/grib_command_conf'

@@ -57,7 +57,7 @@ class GribConf < Hash
     super(k,v) unless v.nil?
   end
 
-  def initialize(file_path_or_hash = {}, name = "Unnamed Gribdata", parent = {})
+  def initialize(file_path_or_hash = {}, name = "Unnamed Gribdata", parent = nil)
     if file_path_or_hash.is_a?(String)
       file = File.new(file_path_or_hash, "r")
       @conf_name = file.basename
