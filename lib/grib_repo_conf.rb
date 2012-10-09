@@ -17,10 +17,10 @@ class GribRepoConf < GribConf
     end
     @branches = {}
     (data["branches"] || {}).each do |branch_name, branch_data|
-      @branches[branch_name] = GribConf.new(branch_data, branch_name, self)
+      @branches[branch_name] = GribConf.new(branch_data, "branch-#{branch_name}", self)
     end
     # Init the general GribConf object according to the "general" key in the data
-    super(data["general"], name, parent)
+    super(data["general"] || {}, name, parent)
   end
 
   def for_branch(branch)
@@ -37,8 +37,8 @@ class GribRepoConf < GribConf
   end
 
   def save_file()
-    file = File.new(@filename, "w")
-    file.write(YAML.dump({"branches" => @branches, "general" => self}))
-    file.close
+    File.open(@filename, "w") do |file|
+      YAML.dump({"branches" => @branches, "general" => self}, file)
+    end
   end
 end

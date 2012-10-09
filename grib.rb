@@ -32,16 +32,16 @@ class Grib
     branch = get_current_branch()
     repo_conf = get_repo_conf(user_conf)
     branch_conf = repo_conf.for_branch(branch)
+    $LOG.debug branch_conf
     command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", branch_conf) do |new_option, value|
       $LOG.info "New option: #{new_option} = #{value}"
     end
     conf = command_line_conf
-
+    $LOG.debug conf
     # Generate and run command:
     cmd = generate_pr_command(conf)
     $LOG.debug "command: \n\t'#{cmd}'"
     pr_output = %x[#{cmd}]
-    # $LOG.debug "post-review output: \n#{pr_output}"
 
     # Process output:
     review_number = pr_output.match(/ #([0-9]+) /).tap{|r|
@@ -56,9 +56,10 @@ class Grib
         exit -1
       end
     }[1]
+    $LOG.debug "post-review output: \n#{"-"*64}\n#{pr_output}#{"-"*64}"
     $LOG.info "Review number : ##{review_number}"
     $LOG.info "Browser should now be opened." if conf["open"]
-    branch_conf["r"] = review_number
+    branch_conf["review-request-id"] = review_number
     repo_conf.save_file
 
   end
@@ -66,7 +67,12 @@ class Grib
   def generate_pr_command(conf)
     args = []
     args << PR_COMMAND
-
+    GribConf::VALID_OPTIONS.each do |option|
+      args << "--#{option}=#{conf[option]}" unless conf[option].nil?
+    end
+    GribConf::VALID_FLAGS.each do |option|
+      args << "--#{option}" if conf[option]
+    end
     return args.join(" ")
   end
 
@@ -80,7 +86,9 @@ class Grib
     filename = File.join(ENV["HOME"], USER_CONF_FILE)
     if File.exists?(filename)
       $LOG.debug "Using user configuration file: #{filename}"
-      return GribConf.new(filename, "User")
+      ans = GribConf.new(filename, "User")
+      $LOG.debug ans
+      return ans
     else
       $LOG.debug "No user configuration file found in #{filename}"
       return GribConf.new({}, "Empty User")
@@ -91,7 +99,9 @@ class Grib
     repo_data_folder = @repo_interface.get_data_folder()
     filename = File.join repo_data_folder, REPO_CONF_FILE
     $LOG.debug "Repository configuration file: #{filename}"
-    GribRepoConf.new(filename, "Repo", parent)
+    ans = GribRepoConf.new(filename, "Repo", parent)
+    $LOG.debug ans
+    ans
   end
 
 #     @cmds = ["post-review"]

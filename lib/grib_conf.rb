@@ -24,7 +24,7 @@ class GribConf < Hash
     "diff-filename",
     "http-username",
     "http-password",
-    "r"
+    "review-request-id"
   ].freeze
 
   VALID_FLAGS = [
@@ -78,6 +78,6 @@ class GribConf < Hash
   end
 
   def to_s()
-    "{-GribConf: #{super()} [parent conf: #{@parent}]-}"
+    "{-GribConf #{@conf_name}: #{inspect} [parent: #{@parent && @parent.conf_name}]-}"
   end
 end

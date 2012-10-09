@@ -6,6 +6,7 @@ class GribCommandConf < GribConf
     "publish" => "p",
     "open" => "o",
     "guess-fields" => "g",
+    "review-request-id" => "r"
     }.freeze
 
   def initialize(argv = "", name = "grib_command_conf", parent = {}, &option_handler)
@@ -13,7 +14,11 @@ class GribCommandConf < GribConf
     @option_handler = option_handler
     @opts = OptionParser.new do |opts|
       GribConf::VALID_OPTIONS.each do |pr_option|
-        opts.on("--#{pr_option}=#{pr_option.upcase}", String) do |str|
+        short = SHORT_PARAM_MAPPING[pr_option]
+        str = ""
+        str << "-#{short}, " if short
+        str << "--#{pr_option}=#{pr_option.upcase}"
+        opts.on(str, String) do |str|
           save_option pr_option, str
         end
       end
