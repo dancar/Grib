@@ -44,7 +44,7 @@ class Grib
       print_info(conf, true)
       exit 0
     end
-
+    print_info(conf)
     $LOG.debug "command: \n\t'#{cmd}'"
     pr_output = %x[#{cmd}]
 
@@ -84,8 +84,15 @@ class Grib
     @command_line_conf
   end
 
+  def save_new_review_request_id(r)
+    @conf_changed ||= @branch_conf["review_request_id"] != r
+    @branch_conf["review_request_id"] = r
+    $LOG.info "Using review request id ##{r} for current branch"
+  end
+
   def save_new_option(new_option, value)
     return if @branch_conf[new_option] == value # No need to save command-line argument if already saved
+    return save_new_review_request_id(value) if new_option == "review-request-id"
     print %Q[
     A new option have been specified:
       \t#{new_option} = "#{value}"
@@ -122,7 +129,7 @@ class Grib
 
   def get_current_branch()
     branch = @repo_interface.get_current_branch
-    $LOG.info "Current branch: #{branch}"
+    $LOG.debug "Obtained branch: #{branch}"
     return branch
   end
 
@@ -149,7 +156,7 @@ class Grib
   end
 
   def print_info(conf, show_nils = false)
-    $LOG.info "#{show_nils ? "Full " : ""}Configuration dump:"
+    $LOG.info "#{show_nils ? "Full " : ""}Resolved configuration:"
     GribConf::ALL_OPTIONS.each do |o|
       v = conf[o]
       $LOG.info "\t#{o} = #{v}" if !v.nil? or show_nils
