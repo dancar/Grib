@@ -59,7 +59,11 @@ class GribCommandConf < GribConf
 
   def parse(argv, &option_handler)
     @option_handler = option_handler if option_handler
-    @opts.parse(argv)
+    begin
+      @opts.parse(argv)
+    rescue OptionParser::ParseError => e
+      $LOG.error e.message
+    end
   end
 
   def []=(k,v)

@@ -2,7 +2,8 @@ require 'logger'
 class GribLogger < Logger
   def error(*args)
     super(*args)
-    throw "Error logged"
+    throw :error_logged if level == Logger::DEBUG
+    exit -1
   end
 end
 def make_logger()
