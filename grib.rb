@@ -182,7 +182,8 @@ class Grib
     ensure
       system("stty -raw echo")
     end
-    exit(-1) if str == 3 or str == 26
+
+    exit(-1) if str == 3 or str == 26 or str.ord == 3 or str.ord == 26
     return str.chr
   end
 end
