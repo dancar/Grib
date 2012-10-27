@@ -36,6 +36,7 @@ class Grib
     @repo_conf.save_file
     @user_conf.save_file
     if conf["dry"]
+      print_info(conf, false)
       $LOG.info cmd
       exit 0
     elsif conf["info"]
@@ -81,8 +82,18 @@ class Grib
     @command_line_conf = GribCommandConf.new(ARGV, "Command-Line Conf", @branch_conf) do |new_option, value|
       save_new_option(new_option,value)
     end
-    $LOG.debug @commannd_line_conf
-    @command_line_conf
+    resolved_conf = GribConf.new({}, "Resolved Conf", @command_line_conf)
+    apply_fields_logic(resolved_conf)
+    $LOG.debug resolved_conf
+    resolved_conf
+  end
+
+  # Apply my own fields logic:
+  def apply_fields_logic(conf)
+    # Activate guess if no specific field data given or the review request is new:
+    is_new_request = !! (conf["new"] || !conf["review-request-id"])
+    conf["guess-description"] ||= !conf["description"] && is_new_request
+    conf["guess-summary"] ||= !conf["summary"] && is_new_request
   end
 
   def save_new_review_request_id(r)
