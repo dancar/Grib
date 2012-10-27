@@ -34,6 +34,7 @@ class Grib
     # Generate and run command:
     cmd = generate_pr_command(conf)
     @repo_conf.save_file
+    @user_conf.save_file
     if conf["dry"]
       $LOG.info cmd
       exit 0
@@ -99,18 +100,24 @@ class Grib
       Would you like to save this option as default for future invocations?
       \t(b) Yes, save as default for branch '#{@branch}'
       \t(r) Yes, save as default for all branches under the current repository
+      \t(u) Yes, save as default for all my branches
       \t(n) No, do not save this option
       Your choice: ].gsub(/^ */,"")
     user_ans = read_char()
-    while not user_ans.match(/[brn]/)
-      puts "Please type either 'b', 'r' or 'n'"
+    while not user_ans.match(/[brun]/)
+      puts "Please type either 'b', 'r', 'u' or 'n'"
       user_ans = read_char()
     end
 
-    case user_ans
-      when "b" then @branch_conf[new_option] = value
-      when "r" then @repo_conf[new_option] = value
-    end
+    [ ["b", @branch_conf], ["r", @repo_conf], ["u", @user_conf]].each do |key, conf|
+      if user_ans == key
+        conf[new_option] = value
+        break;
+      else
+        conf.delete new_option # Delete the setting from branch_conf if it is on repo/user, delete from repo if on user
+      end
+    end unless user_ans == "n"
+
     puts user_ans
     @conf_changed = true if user_ans.match(/[br]/)
   end
@@ -135,15 +142,7 @@ class Grib
 
   def get_user_conf()
     filename = File.join(ENV["HOME"], USER_CONF_FILE)
-    if File.exists?(filename)
-      $LOG.debug "Using user configuration file: #{filename}"
-      ans = GribConf.new(filename, "User")
-      $LOG.debug ans
-      return ans
-    else
-      $LOG.debug "No user configuration file found in #{filename}"
-      return GribConf.new({}, "Empty User")
-    end
+    return GribConf.new(filename, "User")
   end
 
   def get_repo_conf(parent)

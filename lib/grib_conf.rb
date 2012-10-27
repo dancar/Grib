@@ -57,11 +57,22 @@ class GribConf < Hash
     super(k,v) unless v.nil?
   end
 
+  def save_file()
+    raise "Cannot save GribConf '#{conf_name}' - no file specified" unless @filename.is_a?(String)
+    hash = {} # Conversion to a normal hash is necessary for the sake of a cleaner yaml dump
+    each do |k,v|
+      hash[k] = v
+    end
+    File.open(@filename, "w") do |f|
+      f.write YAML.dump(hash)
+    end
+  end
+
   def initialize(file_path_or_hash = {}, name = "Unnamed Gribdata", parent = nil)
     if file_path_or_hash.is_a?(String)
-      file = File.new(file_path_or_hash, "r")
-      @conf_name = file.basename
-      gribdata = yaml_path,YAML.load(file)
+      @filename = file_path_or_hash
+      @conf_name = name || File.basename(@filename)
+      gribdata = File.exist?(@filename) ? gribdata = YAML.load(File.new(@filename)) : {}
     elsif file_path_or_hash.is_a?(Hash)
       @conf_name = name
       gribdata = file_path_or_hash
