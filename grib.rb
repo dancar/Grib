@@ -35,6 +35,8 @@ class Grib
     cmd = generate_pr_command(conf)
     @repo_conf.save_file
     @user_conf.save_file
+    cmd.gsub!("--new", "") if conf["new"]
+
     if conf["dry"]
       print_info(conf, false)
       $LOG.info cmd
