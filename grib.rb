@@ -30,11 +30,9 @@ class Grib
   def run()
     conf = obtain_configurations()
     conf["branch"] = @branch
-    # Assert the branch is pushed:
-    unless @repo_interface.assert_remote_aligned
-      $LOG.error "Remote branch for #{branch} not aligned"
-      exit -1
-    end
+
+    assert_remote_aligned()
+
     # Generate and run command:
     cmd = generate_pr_command(conf)
     @repo_conf.save_file
@@ -76,6 +74,20 @@ class Grib
     @repo_conf.save_file
     $LOG.info("Changes saved to #{@repo_conf.filename}.") if @conf_changed
 
+  end
+
+  # Assert the branch is pushed:
+  def assert_remote_aligned
+    remote_branch_name = @repo_interface.get_current_remote_branch
+    unless remote_branch_name.length > 0
+      $LOG.error "Branch '#{@branch}' has no remote branch"
+      exit -1
+    end
+
+    unless @repo_interface.get_identifier(@branch) == @repo_interface.get_identifier(remote_branch_name)
+      $LOG.error "Remote branch '#{remote_branch_name}' not aligned with '#{@branch}'"
+      exit -1
+    end
   end
 
   def obtain_configurations()

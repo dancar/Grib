@@ -2,19 +2,25 @@ require 'lib/repo_interfaces/grib_repo_interface'
 module GribRepoInterfaces
   class Git < GribRepoInterfaces::GribRepoInterface
     def get_data_folder
-      File.join(cmd("rev-parse --show-toplevel") , ".git")
+      File.join(git("rev-parse --show-toplevel") , ".git")
     end
+
     def get_current_branch
       git("symbolic-ref -q --short HEAD")
     end
 
-    def assert_remote_aligned
-      git("rev-parse HEAD") == git("rev-parse @{u}")
+    def get_current_remote_branch
+      head = git("symbolic-ref -q HEAD")
+      git("for-each-ref --format='%(upstream:short)' #{head}")
+    end
+
+    def get_identifier(branch)
+      git("rev-parse #{branch}")
     end
 
     private
     def git(args)
-      %X[git #{args}].chomp
+      %x[git #{args}].chomp
     end
   end
 end
