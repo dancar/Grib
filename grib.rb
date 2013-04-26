@@ -80,8 +80,8 @@ class Grib
   def assert_remote_aligned
     remote_branch_name = @repo_interface.get_current_remote_branch
     unless remote_branch_name.length > 0
-      $LOG.error "Branch '#{@branch}' has no remote branch"
-      exit -1
+      $LOG.warn "Branch '#{@branch}' has no remote branch, skipping alignment-assertion"
+      return
     end
 
     unless @repo_interface.get_identifier(@branch) == @repo_interface.get_identifier(remote_branch_name)
