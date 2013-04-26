@@ -10,7 +10,7 @@ require 'shellwords'
 
 class Grib
   # Constants:
-  VERSION = "2.0"
+  VERSION = "2.1"
   USER_CONF_FILE = ".grib" # Will be concatenated to the HOME environment variable
   REPO_CONF_FILE = "gribdata.yml" # Will reside in the repository folder
   REPO_INTERFACES = {
@@ -28,9 +28,13 @@ class Grib
   end
 
   def run()
-
     conf = obtain_configurations()
     conf["branch"] = @branch
+    # Assert the branch is pushed:
+    unless @repo_interface.assert_remote_aligned
+      $LOG.error "Remote branch for #{branch} not aligned"
+      exit -1
+    end
     # Generate and run command:
     cmd = generate_pr_command(conf)
     @repo_conf.save_file
@@ -177,7 +181,7 @@ class Grib
   end
 
   def read_char()
-    # magic from http://stackoverflow.com/questions/174933/how-to-get-a-single-character-without-pressing-enter
+    # magic stolen from http://stackoverflow.com/questions/174933/how-to-get-a-single-character-without-pressing-enter
     begin
       system("stty raw -echo")
       str = STDIN.getc
