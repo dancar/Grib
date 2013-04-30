@@ -10,7 +10,7 @@ require 'shellwords'
 
 class Grib
   # Constants:
-  VERSION = "2.0"
+  VERSION = "2.1"
   USER_CONF_FILE = ".grib" # Will be concatenated to the HOME environment variable
   REPO_CONF_FILE = "gribdata.yml" # Will reside in the repository folder
   REPO_INTERFACES = {
@@ -28,9 +28,11 @@ class Grib
   end
 
   def run()
-
     conf = obtain_configurations()
     conf["branch"] = @branch
+
+    assert_remote_aligned()
+
     # Generate and run command:
     cmd = generate_pr_command(conf)
     @repo_conf.save_file
@@ -72,6 +74,20 @@ class Grib
     @repo_conf.save_file
     $LOG.info("Changes saved to #{@repo_conf.filename}.") if @conf_changed
 
+  end
+
+  # Assert the branch is pushed:
+  def assert_remote_aligned
+    remote_branch_name = @repo_interface.get_current_remote_branch
+    unless remote_branch_name.length > 0
+      $LOG.warn "Branch '#{@branch}' has no remote branch, skipping alignment-assertion"
+      return
+    end
+
+    unless @repo_interface.get_identifier(@branch) == @repo_interface.get_identifier(remote_branch_name)
+      $LOG.error "Remote branch '#{remote_branch_name}' not aligned with '#{@branch}'"
+      exit -1
+    end
   end
 
   def obtain_configurations()
@@ -177,7 +193,7 @@ class Grib
   end
 
   def read_char()
-    # magic from http://stackoverflow.com/questions/174933/how-to-get-a-single-character-without-pressing-enter
+    # magic stolen from http://stackoverflow.com/questions/174933/how-to-get-a-single-character-without-pressing-enter
     begin
       system("stty raw -echo")
       str = STDIN.getc
