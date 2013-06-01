@@ -78,14 +78,12 @@ class Grib
 
   # Assert the branch is pushed:
   def assert_remote_aligned
-    remote_branch_name = @repo_interface.get_current_remote_branch
-    unless remote_branch_name.length > 0
-      $LOG.warn "Branch '#{@branch}' has no remote branch, skipping alignment-assertion"
-      return
-    end
+    $LOG.warn "Skipping alignment-assertion" and return unless @repo_interface.respond_to?(:assert_alignment)
 
-    unless @repo_interface.get_identifier(@branch) == @repo_interface.get_identifier(remote_branch_name)
-      $LOG.error "Remote branch '#{remote_branch_name}' not aligned with '#{@branch}'"
+    success_or_msg = @repo_interface.assert_alignment
+
+    unless  success_or_msg == :success
+      $LOG.error "Alignment-assertion failed: #{success_or_msg}"
       exit -1
     end
   end
