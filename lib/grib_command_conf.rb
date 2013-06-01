@@ -7,10 +7,12 @@ class GribCommandConf < GribConf
     "publish" => "p",
     "open" => "o",
     "guess-fields" => "g",
-    "review-request-id" => "r"
+    "review-request-id" => "r",
+    "skip-alignment-assertion" => "S"
     }.freeze
   COMMAND_LINE_UNIQUE_OPTIONS = {
     "new" => "Ignore existing review-request-id and ask to create a new one",
+    "skip-alignment-assertion" => "Skip alignment-assertion",
     "info" => "Do not execute post-review, only show branch info",
     "dry" => "Dry-run - do not execute post-review, only read configurations and show the command",
     "full-info" => "Same as --info, but shows unspecified configurations as well"
@@ -49,7 +51,12 @@ class GribCommandConf < GribConf
       end
 
       COMMAND_LINE_UNIQUE_OPTIONS.each do |cmd_flag, desc|
-        opts.on("--#{cmd_flag}", desc) do
+        args = ["--#{cmd_flag}"]
+        if (short = SHORT_PARAM_MAPPING[cmd_flag])
+          args << "-#{short}"
+        end
+        args << desc
+        opts.on(*args) do
           self[cmd_flag] = true
         end
       end

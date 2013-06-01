@@ -10,7 +10,7 @@ require 'shellwords'
 
 class Grib
   # Constants:
-  VERSION = "2.1"
+  VERSION = "2.1.1"
   USER_CONF_FILE = ".grib" # Will be concatenated to the HOME environment variable
   REPO_CONF_FILE = "gribdata.yml" # Will reside in the repository folder
   REPO_INTERFACES = {
@@ -29,9 +29,11 @@ class Grib
 
   def run()
     conf = obtain_configurations()
+
     conf["branch"] = @branch
 
-    assert_remote_aligned()
+    # Assert alignment (if not explicitly speficied to skip it):
+    assert_remote_aligned() unless conf["skip-alignment-assertion"]
 
     # Generate and run command:
     cmd = generate_pr_command(conf)
