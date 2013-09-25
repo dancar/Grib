@@ -1,11 +1,11 @@
 require "rubygems" if RUBY_VERSION < "1.9"
-gem "minitest"
+begin; gem "minitest"; rescue Gem::LoadError; end
 require File.expand_path("../../lib/grib", __FILE__)
 require "minitest/autorun"
 require File.expand_path("../mock_logger", __FILE__)
 require 'yaml'
 
-class TestGribRepoConf < MiniTest::Test
+class TestGribRepoConf < MiniTest::Unit::TestCase
   @@FILE1 = "file1.yml"
   @@DATA1 = {
     "branches" => {

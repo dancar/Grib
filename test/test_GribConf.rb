@@ -1,10 +1,10 @@
 require "rubygems" if RUBY_VERSION < "1.9"
-gem "minitest"
+begin; gem "minitest"; rescue Gem::LoadError; end
 require File.expand_path("../../lib/grib", __FILE__)
 require "minitest/autorun"
 require File.expand_path("../mock_logger", __FILE__)
 
-class TestGribConf < MiniTest::Test
+class TestGribConf < MiniTest::Unit::TestCase
 
   def setup
     $LOG = MockLogger.new()

@@ -24,7 +24,7 @@ class MockLogger < Logger
   end
 end
 
-class MiniTest::Test
+class MiniTest::Unit::TestCase
   def assert_last_log (type)
     assert_equal(type, MockLogger.last_log)
   end
