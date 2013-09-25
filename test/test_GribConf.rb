@@ -1,11 +1,13 @@
-require "lib/grib_conf"
-require "test/unit"
-require 'tests/test_logger'
-class TestGribConf < Test::Unit::TestCase
+require "rubygems" if RUBY_VERSION < "1.9"
+begin; gem "minitest"; rescue Gem::LoadError; end
+require File.expand_path("../../lib/grib", __FILE__)
+require "minitest/autorun"
+require File.expand_path("../mock_logger", __FILE__)
 
+class TestGribConf < MiniTest::Unit::TestCase
 
   def setup
-    $LOG = TestLogger.new()
+    $LOG = MockLogger.new()
   end
 
   def test_conf_simple

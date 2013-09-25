@@ -1,8 +1,11 @@
-require 'lib/grib_repo_conf'
-require "test/unit"
-require 'tests/test_logger'
+require "rubygems" if RUBY_VERSION < "1.9"
+begin; gem "minitest"; rescue Gem::LoadError; end
+require File.expand_path("../../lib/grib", __FILE__)
+require "minitest/autorun"
+require File.expand_path("../mock_logger", __FILE__)
 require 'yaml'
-class TestGribRepoConf < Test::Unit::TestCase
+
+class TestGribRepoConf < MiniTest::Unit::TestCase
   @@FILE1 = "file1.yml"
   @@DATA1 = {
     "branches" => {
@@ -18,7 +21,7 @@ class TestGribRepoConf < Test::Unit::TestCase
   }
 
   def setup()
-    $LOG = TestLogger.new()
+    $LOG = MockLogger.new()
     @file1_path = File.join(File.dirname(__FILE__),@@FILE1)
     file1 = File.new(@file1_path, "w")
     file1.write YAML.dump(@@DATA1)

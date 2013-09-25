@@ -1,5 +1,5 @@
 require 'logger'
-class TestLogger < Logger
+class MockLogger < Logger
   attr_accessor :last_log
   @@last_log = nil
 
@@ -24,8 +24,8 @@ class TestLogger < Logger
   end
 end
 
-class Test::Unit::TestCase
+class MiniTest::Unit::TestCase
   def assert_last_log (type)
-    assert_equal(type, TestLogger.last_log)
+    assert_equal(type, MockLogger.last_log)
   end
 end
