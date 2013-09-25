@@ -1,16 +1,13 @@
-#!/usr/bin/env ruby
-# Grib - Git Reviewboard script
-$:.unshift File.dirname(__FILE__)
-require 'lib/grib_conf'
-require 'lib/grib_repo_conf'
-require 'lib/grib_command_conf'
-require 'lib/logger'
-require 'lib/repo_interfaces/git'
+
+lib_dir = File.expand_path("../grib", __FILE__)
+%w{ version grib_conf grib_repo_conf grib_command_conf logger repo_interfaces/grib_repo_interface }.each do |lib|
+  require File.expand_path(lib, lib_dir)
+end
+
 require 'shellwords'
 
 class Grib
   # Constants:
-  VERSION = "2.1.1"
   USER_CONF_FILE = ".grib" # Will be concatenated to the HOME environment variable
   REPO_CONF_FILE = "gribdata.yml" # Will reside in the repository folder
   REPO_INTERFACES = {
@@ -205,5 +202,3 @@ class Grib
     return str.chr
   end
 end
-
-Grib.new().run()

@@ -9,3 +9,7 @@ module GribRepoInterfaces
     end
   end
 end
+
+%w{ git }.each do |lib|
+  require File.expand_path("../#{lib}", __FILE__)
+end

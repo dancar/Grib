@@ -1,8 +1,10 @@
-require "lib/grib_command_conf"
-require "lib/grib_conf"
-require "test/unit"
-require 'tests/test_logger'
-class TestGribConf < Test::Unit::TestCase
+require "rubygems" if RUBY_VERSION < "1.9"
+gem "minitest"
+require File.expand_path("../../lib/grib", __FILE__)
+require "minitest/autorun"
+require File.expand_path("../mock_logger", __FILE__)
+
+class TestGribConf < MiniTest::Test
   PARENT_GRIBCONF = GribConf.new({
     "server" => "my_server",
     "target-people" => "me"
