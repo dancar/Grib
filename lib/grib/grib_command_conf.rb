@@ -1,5 +1,4 @@
 require 'optparse'
-require 'lib/grib_conf'
 class GribCommandConf < GribConf
   UNFLAG_PREFIX = "dont".freeze
   UNOPTION_PREFIX = "no".freeze

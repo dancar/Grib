@@ -1,4 +1,3 @@
-require 'lib/grib_conf'
 require 'yaml'
 # GribRepoConf contains a GribData per each branch and a general GribData for all branches
 # It is used to store both repository-based settings and branch-based settings

@@ -1,4 +1,3 @@
-require 'lib/repo_interfaces/grib_repo_interface'
 module GribRepoInterfaces
   class Git < GribRepoInterfaces::GribRepoInterface
     def get_data_folder
