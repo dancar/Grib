@@ -62,6 +62,28 @@ class Grib
   #{pr_output}
   ---------------------------------------------------------------
   Changes will not be saved.
+
+  Please consider the following:
+    - Did you properly setup a tracking-branch?
+        It should probably be something like origin/my-great-branch.
+        To set it, run grib with "tracking-branch=origin/my-great-branch"
+
+    - Did you properly setup the reviewboard URL?
+        You should have run something like
+        "git config reviewboard.url https://reviewboard.my-great-company.co"
+
+    - Did you make sure the origin URL is equal to the one set in the
+        Reviewboard project's "mirror" value?
+        In git, You can see your origin URL by issuing "git remote -v". Note
+        that some git servers like Gitlab allows you to omit the ".git" suffix
+        from the repository's remote URL, but alas - Reviewboard will complain
+        in case your origin url is something like git@gitlab:my_great_project,
+        while its project's mirror setting is something like
+        "git@gitlab:my_great_project.git". To fix your remote url, you might need
+         to issue something like:
+        "git remote set-url origin {project URL as exactly set in Reviewboard}"
+
+==================================================================================
   END
         exit -1
       end
