@@ -13,7 +13,7 @@ class Grib
   REPO_INTERFACES = {
     "git" => GribRepoInterfaces::Git,
     # "tests" = GribRepoInterface::TestsRepoInterface
-    # TODO: add Mercurial
+    # TODO: add Mercurial, SVN
   }
   PR_COMMAND = "post-review"
 
@@ -124,25 +124,25 @@ class Grib
     A new option have been specified:
       \t#{new_option} = "#{value}"
       Would you like to save this option as default for future invocations?
-      \t(b) Yes, save as default for branch '#{@branch}'
-      \t(r) Yes, save as default for all branches under the current repository
-      \t(u) Yes, save as default for all my branches
-      \t(n) No, do not save this option
+      \t(1) Yes, save as default for branch '#{@branch}'
+      \t(2) Yes, save as default for all branches under the current repository
+      \t(3) Yes, save as default for all my branches
+      \t(4) No, do not save this option
       Your choice: ].gsub(/^ */,"")
     user_ans = read_char()
-    while not user_ans.match(/[brun]/)
-      puts "Please type either 'b', 'r', 'u' or 'n'"
+    while not user_ans.match(/[1-4]/)
+      puts "Please choose an option between 1 and 4."
       user_ans = read_char()
     end
 
-    [ ["b", @branch_conf], ["r", @repo_conf], ["u", @user_conf]].each do |key, conf|
+    [ ["1", @branch_conf], ["2", @repo_conf], ["3", @user_conf]].each do |key, conf|
       if user_ans == key
         conf[new_option] = value
         break;
       else
         conf.delete new_option # Delete the setting from branch_conf if it is on repo/user, delete from repo if on user
       end
-    end unless user_ans == "n"
+    end unless user_ans == "4"
 
     puts user_ans
     @conf_changed = true if user_ans.match(/[br]/)

@@ -29,7 +29,7 @@ module GribRepoInterfaces
 
       # Assert both branches are aligned:
       aligned = (get_identifier(current) == get_identifier(remote))
-      return "Current branch '#{current}' isn't aligned with remote '#{remote}'" unless aligned
+      return "Current branch '#{current}' isn't aligned with remote '#{remote}'.\n\n\tTry running \"git push origin #{current}\"" unless aligned
 
       # All right:
       return :success
