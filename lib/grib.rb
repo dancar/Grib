@@ -126,7 +126,7 @@ class Grib
       Would you like to save this option as default for future invocations?
       \t(1) Yes, save as default for branch '#{@branch}'
       \t(2) Yes, save as default for all branches under the current repository
-      \t(3) Yes, save as default for all my branches
+      \t(3) Yes, save as default for all my branches across all repositories
       \t(4) No, do not save this option
       Your choice: ].gsub(/^ */,"")
     user_ans = read_char()
