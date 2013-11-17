@@ -1,7 +1,14 @@
 module GribRepoInterfaces
   class Git < GribRepoInterfaces::GribRepoInterface
     def get_data_folder
-      File.join(git("rev-parse --show-toplevel") , ".git")
+      project_folder = git("rev-parse --show-toplevel")
+      dot_git = File.join(project_folder, ".git")
+      return dot_git if File.directory?(dot_git)
+      dot_git_content = File.read(dot_git)
+      dot_git_content.match(/^gitdir: (.+)$/).tap do |match_data|
+        return match_data[1]
+      end
+      raise "Could not resolve .git directory "
     end
 
     def get_current_branch
