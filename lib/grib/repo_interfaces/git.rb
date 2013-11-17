@@ -5,7 +5,7 @@ module GribRepoInterfaces
     end
 
     def get_current_branch
-      git("symbolic-ref -q --short HEAD")
+      git("rev-parse --abbrev-ref HEAD")
     end
 
     def get_current_remote_branch
@@ -43,7 +43,10 @@ module GribRepoInterfaces
     end
 
     def git(args)
-      %x[git #{args}].chomp
+      puts "=> git #{args}"
+      ans = %x[git #{args}].chomp
+      puts "<= #{ans}"
+      ans
     end
   end
 end
