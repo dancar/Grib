@@ -43,10 +43,7 @@ module GribRepoInterfaces
     end
 
     def git(args)
-      puts "=> git #{args}"
-      ans = %x[git #{args}].chomp
-      puts "<= #{ans}"
-      ans
+      %x[git #{args}].chomp
     end
   end
 end
