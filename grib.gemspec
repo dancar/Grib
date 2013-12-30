@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.description = "Wraps reviewboard's post-review command line tool to remember previous invocations, and do some basic sanity checks prior to posting a review"
 
   s.authors     = ["Dan Carmon"]
-  s.email       = "dan.carmon@trusteer.com"
+  s.email       = "dan@carmon.org.il"
   s.homepage    = "http://dancar.github.com/grib"
   s.license     = "MIT"
 
