@@ -15,8 +15,6 @@ class Grib
     # "tests" = GribRepoInterface::TestsRepoInterface
     # TODO: add Mercurial, SVN
   }
-  PR_COMMAND = "post-review"
-
   def initialize()
     $LOG = make_logger()
     $LOG.info "Welcome to Grib #{VERSION}"
@@ -172,7 +170,9 @@ class Grib
 
   def generate_pr_command(conf)
     args = []
-    args << PR_COMMAND
+    pr_command =  system('which rbt') ? 'rbt post' : 'post-review' # 'post-review' was replaced by 'rbt post'
+
+    args << pr_command
     GribConf::VALID_OPTIONS.each do |option|
       args << "--#{option}=#{Shellwords.escape(conf[option])}" unless conf[option].nil?
     end
